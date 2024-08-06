@@ -19,16 +19,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, quantity INTEGER)");
         db.execSQL("CREATE TABLE sales (id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER, quantity INTEGER, price REAL, importe REAL)");
 
-        // Insertar productos predeterminados
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Refresco 1', 10.0, 50)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Refresco 2', 12.0, 30)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Refresco 3', 8.0, 20)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Pizza 1', 100.0, 10)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Pizza 2', 120.0, 15)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Pizza 3', 90.0, 5)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Abarrote 1', 20.0, 25)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Abarrote 2', 15.0, 40)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Abarrote 3', 25.0, 35)");
+        // Insertar productos predeterminados con nuevos nombres
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Coca Cola', 10.0, 50)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Pepsi', 12.0, 30)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Fanta', 8.0, 20)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Pizza Margarita', 100.0, 10)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Pizza Pepperoni', 120.0, 15)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Pizza Hawaiana', 90.0, 5)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Harina', 20.0, 25)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Azúcar', 15.0, 40)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Arroz', 25.0, 35)");
     }
 
     @Override
@@ -39,3 +39,4 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 }
+

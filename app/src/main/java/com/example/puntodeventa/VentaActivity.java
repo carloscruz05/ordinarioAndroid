@@ -23,7 +23,7 @@ import java.util.ArrayList;
 public class VentaActivity extends AppCompatActivity {
 
     private ListView listViewProducts;
-    private Button btnFinalizarVenta, btnMenu, btnLimpiar;
+    private Button btnFinalizarVenta, btnLimpiar, btnMenu;
     private DatabaseHelper dbHelper;
     private ArrayList<String> productList;
     private ArrayAdapter<String> adapter;
@@ -35,8 +35,9 @@ public class VentaActivity extends AppCompatActivity {
 
         listViewProducts = findViewById(R.id.listViewProducts);
         btnFinalizarVenta = findViewById(R.id.btnFinalizarVenta);
-        btnMenu = findViewById(R.id.btnMenu);
         btnLimpiar = findViewById(R.id.btnLimpiar);
+        btnMenu = findViewById(R.id.btnMenu);
+
         dbHelper = new DatabaseHelper(this);
 
         loadProducts();
@@ -55,18 +56,18 @@ public class VentaActivity extends AppCompatActivity {
             }
         });
 
+        btnLimpiar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearSales();
+            }
+        });
+
         btnMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(VentaActivity.this, MenuActivity.class);
                 startActivity(intent);
-            }
-        });
-
-        btnLimpiar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                limpiarDatos();
             }
         });
     }
@@ -77,7 +78,7 @@ public class VentaActivity extends AppCompatActivity {
 
         productList = new ArrayList<>();
         while (cursor.moveToNext()) {
-            String product = "ID: " + cursor.getInt(0) + ", Name: " + cursor.getString(1) + ", Price: " + cursor.getString(2) + ", Quantity: " + cursor.getString(3);
+            String product = cursor.getString(1); // Obtener solo el nombre del producto
             productList.add(product);
         }
         cursor.close();
@@ -88,19 +89,19 @@ public class VentaActivity extends AppCompatActivity {
 
     private void showSaleDialog(final int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Sale Product");
+        builder.setTitle("Venta de Producto");
 
         View viewInflated = getLayoutInflater().inflate(R.layout.dialog_sale, null);
         builder.setView(viewInflated);
 
         final EditText inputQuantity = viewInflated.findViewById(R.id.inputQuantity);
 
-        builder.setPositiveButton("Sell", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Vender", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String quantityStr = inputQuantity.getText().toString();
                 if (quantityStr.isEmpty()) {
-                    Toast.makeText(VentaActivity.this, "Please enter quantity", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(VentaActivity.this, "Por favor, ingrese la cantidad", Toast.LENGTH_SHORT).show();
                 } else {
                     int quantity = Integer.parseInt(quantityStr);
                     processSale(position, quantity);
@@ -108,7 +109,7 @@ public class VentaActivity extends AppCompatActivity {
             }
         });
 
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -119,26 +120,29 @@ public class VentaActivity extends AppCompatActivity {
     }
 
     private void processSale(int position, int quantity) {
-        String productInfo = productList.get(position);
-        String[] productDetails = productInfo.split(",");
-        int productId = Integer.parseInt(productDetails[0].split(": ")[1]);
-        double price = Double.parseDouble(productDetails[2].split(": ")[1]);
+        String productName = productList.get(position);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM products WHERE name=?", new String[]{productName});
+        if (cursor.moveToFirst()) {
+            int productId = cursor.getInt(0);
+            double price = cursor.getDouble(2);
 
-        double importe = price * quantity;
+            double importe = price * quantity;
 
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("product_id", productId);
-        values.put("quantity", quantity);
-        values.put("price", price);
-        values.put("importe", importe);
+            ContentValues values = new ContentValues();
+            values.put("product_id", productId);
+            values.put("quantity", quantity);
+            values.put("price", price);
+            values.put("importe", importe);
 
-        long newRowId = db.insert("sales", null, values);
-        if (newRowId != -1) {
-            Toast.makeText(this, "Sale recorded", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "Error recording sale", Toast.LENGTH_SHORT).show();
+            long newRowId = db.insert("sales", null, values);
+            if (newRowId != -1) {
+                Toast.makeText(this, "Venta registrada", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Error al registrar la venta", Toast.LENGTH_SHORT).show();
+            }
         }
+        cursor.close();
     }
 
     private void showSalesSummary() {
@@ -148,14 +152,14 @@ public class VentaActivity extends AppCompatActivity {
         ArrayList<String> salesList = new ArrayList<>();
         double total = 0;
         while (cursor.moveToNext()) {
-            String sale = "Product ID: " + cursor.getInt(1) + ", Quantity: " + cursor.getInt(2) + ", Price: " + cursor.getDouble(3) + ", Importe: " + cursor.getDouble(4);
+            String sale = "ID del Producto: " + cursor.getInt(1) + ", Cantidad: " + cursor.getInt(2) + ", Precio: " + cursor.getDouble(3) + ", Importe: " + cursor.getDouble(4);
             salesList.add(sale);
             total += cursor.getDouble(4);
         }
         cursor.close();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Sales Summary");
+        builder.setTitle("Resumen de Ventas");
 
         View viewInflated = getLayoutInflater().inflate(R.layout.dialog_sales_summary, null);
         builder.setView(viewInflated);
@@ -163,11 +167,13 @@ public class VentaActivity extends AppCompatActivity {
         ListView listViewSales = viewInflated.findViewById(R.id.listViewSales);
         TextView textViewTotal = viewInflated.findViewById(R.id.textViewTotal);
 
+        // Continuación del método showSalesSummary
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, salesList);
         listViewSales.setAdapter(adapter);
+
         textViewTotal.setText("Total: $" + total);
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
@@ -177,25 +183,16 @@ public class VentaActivity extends AppCompatActivity {
         builder.show();
     }
 
-    private void limpiarDatos() {
+    private void clearSales() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.execSQL("DELETE FROM sales");
-        db.execSQL("DELETE FROM products");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('coca-cola', 10.0, 50)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('mirinda', 12.0, 30)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('manzanita', 8.0, 20)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Pizza 1', 100.0, 10)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Pizza 2', 120.0, 15)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Pizza 3', 90.0, 5)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Abarrote 1', 20.0, 25)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Abarrote 2', 15.0, 40)");
-        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Abarrote 3', 25.0, 35)");
-
-        productList.clear();
-        adapter.notifyDataSetChanged();
-        loadProducts();
-
-        Toast.makeText(this, "Datos limpiados", Toast.LENGTH_SHORT).show();
+        int rowsDeleted = db.delete("sales", null, null);
+        if (rowsDeleted > 0) {
+            Toast.makeText(this, "Ventas borradas", Toast.LENGTH_SHORT).show();
+            loadProducts(); // Opcional: recargar la lista de productos si es necesario
+        } else {
+            Toast.makeText(this, "No se pudieron borrar las ventas", Toast.LENGTH_SHORT).show();
+        }
     }
 }
+
 
