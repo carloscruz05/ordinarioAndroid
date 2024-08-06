@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".VentaActivity">
+    tools:context=".VentaActivity"
+    android:background="@drawable/tu_imagen_de_fondo">
 
     <ListView
         android:id="@+id/listViewProducts"
