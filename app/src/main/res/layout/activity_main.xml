@@ -7,9 +7,15 @@
     tools:context=".MainActivity"
     android:background="@drawable/tu_imagen_de_fondo">
 
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/tu_logo" />
+
     <Button
         android:id="@+id/btnLogin"
-        android:layout_width="wrap_content"
+        android:layout_width="152dp"
         android:layout_height="wrap_content"
         android:text="Login" />
 </LinearLayout>

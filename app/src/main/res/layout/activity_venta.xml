@@ -1,10 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    tools:context=".VentaActivity"
-    android:background="@drawable/tu_imagen_de_fondo">
+    android:padding="16dp">
 
     <ListView
         android:id="@+id/listViewProducts"
@@ -12,9 +10,29 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
+    <TextView
+        android:id="@+id/textViewTotal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:text="Total: $" />
+
     <Button
         android:id="@+id/btnFinalizarVenta"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Finalizar Venta" />
+
+    <Button
+        android:id="@+id/btnMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Menú" />
+
+    <Button
+        android:id="@+id/btnLimpiar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Limpiar" />
 </LinearLayout>
+

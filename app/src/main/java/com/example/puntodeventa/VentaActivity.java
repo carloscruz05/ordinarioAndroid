@@ -2,6 +2,7 @@ package com.example.puntodeventa;
 
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -22,7 +23,7 @@ import java.util.ArrayList;
 public class VentaActivity extends AppCompatActivity {
 
     private ListView listViewProducts;
-    private Button btnFinalizarVenta;
+    private Button btnFinalizarVenta, btnMenu, btnLimpiar;
     private DatabaseHelper dbHelper;
     private ArrayList<String> productList;
     private ArrayAdapter<String> adapter;
@@ -34,6 +35,8 @@ public class VentaActivity extends AppCompatActivity {
 
         listViewProducts = findViewById(R.id.listViewProducts);
         btnFinalizarVenta = findViewById(R.id.btnFinalizarVenta);
+        btnMenu = findViewById(R.id.btnMenu);
+        btnLimpiar = findViewById(R.id.btnLimpiar);
         dbHelper = new DatabaseHelper(this);
 
         loadProducts();
@@ -49,6 +52,21 @@ public class VentaActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 showSalesSummary();
+            }
+        });
+
+        btnMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(VentaActivity.this, MenuActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        btnLimpiar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                limpiarDatos();
             }
         });
     }
@@ -158,4 +176,26 @@ public class VentaActivity extends AppCompatActivity {
 
         builder.show();
     }
+
+    private void limpiarDatos() {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.execSQL("DELETE FROM sales");
+        db.execSQL("DELETE FROM products");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('coca-cola', 10.0, 50)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('mirinda', 12.0, 30)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('manzanita', 8.0, 20)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Pizza 1', 100.0, 10)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Pizza 2', 120.0, 15)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Pizza 3', 90.0, 5)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Abarrote 1', 20.0, 25)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Abarrote 2', 15.0, 40)");
+        db.execSQL("INSERT INTO products (name, price, quantity) VALUES ('Abarrote 3', 25.0, 35)");
+
+        productList.clear();
+        adapter.notifyDataSetChanged();
+        loadProducts();
+
+        Toast.makeText(this, "Datos limpiados", Toast.LENGTH_SHORT).show();
+    }
 }
+
